@@ -4,7 +4,7 @@ import json
 import game_interface as gi
 
 DATA_FILENAME = "data/random_walk.json"
-ITERATIONS = 50
+OBS_PER_PLANT = 10
 DIRECTIONS = [
   gi.UP,
   gi.DOWN,
@@ -29,7 +29,10 @@ def set_previous_state(view):
   view.prev_y = view.GetYPos()
   view.prev_life = view.GetLife()
   view.prev_plant_status = view.GetPlantInfo()
-  view.prev_plant_image = view.GetImage()
+  
+  view.prev_plant_images = []
+  for i in range(OBS_PER_PLANT):
+    view.prev_plant_images.append(view.GetImage())
   
   view.prev_direction = view.direction
   view.prev_eat = view.eat
@@ -57,8 +60,9 @@ def get_move(view):
     moved_direction = determine_direction(view)
     reward = view.GetLife() - view.prev_life
     
-    new_data = json.dumps((view.prev_plant_image, reward))
-    view.data_file.write("{0}\n".format(new_data))
+    if len(view.prev_plant_images[0]) != 0:
+      new_data = json.dumps((view.prev_plant_images, reward))
+      view.data_file.write("{0}\n".format(new_data))
         
   view.direction = random.choice(DIRECTIONS)
   view.eat = True
