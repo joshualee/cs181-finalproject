@@ -6,7 +6,7 @@ import pickle
 import game_interface as gi
 
 DATA_FILENAME = "data/random_walk.json"
-JSON_FILENAME = "data/data.json"
+JSON_FILENAME = "data/raw_data.json"
 OBS_PER_PLANT = 10
 DIRECTIONS = [
   gi.UP,
@@ -199,12 +199,15 @@ def collect_data(view):
   else:
     reward = view.GetLife() - view.prev_life
     
-    if len(view.prev_plant) != 0 and view.prev_status == gi.STATUS_UNKNOWN_PLANT:
-      new_data = json.dumps((view.prev_plant, reward))
-      view.data_file.write(new_data + "\n")
+    if len(view.prev_plants[0]) != 0 and view.prev_status == gi.STATUS_UNKNOWN_PLANT and reward > 0:
+      for plant in view.prev_plants:
+        new_data = json.dumps((plant, reward))
+        view.data_file.write(new_data + "\n")
     
   view.prev_life = view.GetLife()
-  view.prev_plant = view.GetImage()
+  view.prev_plants = []
+  for i in range(OBS_PER_PLANT):
+    view.prev_plants.append(view.GetImage())
   view.prev_status = view.GetPlantInfo()
   
   # d = random.choice(DIRECTIONS)

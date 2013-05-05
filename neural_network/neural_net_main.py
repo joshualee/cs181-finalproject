@@ -44,12 +44,12 @@ def main():
       edge_probability = float(args_map['-p'])
 
   # Load in the training data.
-  images = DataReader.GetImages('../data/500n_500p.json', -1)
+  images = DataReader.GetImages('../data/32kset-training-22000.json', -1)
   for image in images:
     assert len(image.pixels) == 36
 
   # Load the validation set.
-  validation = DataReader.GetImages('../data/500n_500p.json', -1)
+  validation = DataReader.GetImages('../data/32kset-validation-5000.json', -1)
   for image in validation:
     assert len(image.pixels) == 36
 
@@ -84,7 +84,7 @@ def main():
   epochs, data = network.Train(images, validation, rate, epochs)
   data = data[1::]
 
-  test_images = DataReader.GetImages('../data/500n_500p.json', -1)
+  test_images = DataReader.GetImages('../data/32kset-test-5000.json', -1)
   test_performance = network.Performance(test_images)
   
   print "Performance on test data: {0}".format(test_performance)
