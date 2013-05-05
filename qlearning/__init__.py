@@ -86,6 +86,7 @@ def get_grid(view, x, y):
 
 def set_state(view):
   view.cur_state = (view.GetXPos(), view.GetYPos())
+  
 # def set_state(view):
 #   cur_x, cur_y = view.GetXPos(), view.GetYPos()
 #   cur = get_grid(view, cur_x, cur_y)
@@ -210,7 +211,7 @@ def get_move(view):
     reward = view.GetLife() - view.prev_life
     update_state(view)
 
-    sa = (view.prev_state, moved_dir, view.prev_eat)
+    sa = (view.prev_state, moved_dir)
 
     prev_q = view.q.get(sa, 0)
     max_qsa = get_max_qsa(view)
@@ -221,7 +222,6 @@ def get_move(view):
   view.direction = e_greedy(view)
   # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
-
 
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
