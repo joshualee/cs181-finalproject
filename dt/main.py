@@ -346,6 +346,7 @@ def main():
     # Read in the data file
     
     f = open("../data/100n_200p.json")
+    # f = open("../data/12000n_20000p.json")
     
     data = []
     
