@@ -1,5 +1,18 @@
-import coordinate
-import covariance
+from coordinate import Coordinate
+from covariance import Covariance
+import random
+import game_interface as gi
+
+import numpy
+from numpy import matrix
+from numpy import linalg
+
+DIRECTIONS = [
+  gi.RIGHT, 
+  gi.LEFT, 
+  gi.UP, 
+  gi.DOWN
+]
 
 class EM:
     def __init__(self, clusters=3, max_x=25, max_y=25,
@@ -31,7 +44,7 @@ class EM:
         self.initialize_parameters();
         self.data_points = []
 
-    def initialize_paramters(self):
+    def initialize_parameters(self):
 
         '''
             We randomly assign values to our parameters. Currently, these
@@ -53,10 +66,10 @@ class EM:
         self.old_mu = []
         self.old_covariance = []
 
-        for cluster in range(clusters):
+        for cluster in range(self.clusters):
             self.param_pi.append(random.random())
-            self.param_mu.append(coordinate.get_random_coordinate(max_y, max_y))
-            self.param_covariance.append(covariance.get_random_covariance(max_variance))
+            self.param_mu.append(Coordinate.get_random_coordinate(self.max_x, self.max_y))
+            self.param_covariance.append(Covariance.get_random_covariance(self.max_variance))
 
         # Normalize pi values
         pi_sum = sum(self.param_pi)
@@ -72,12 +85,12 @@ class EM:
 
         '''
         num_data = len(self.data_points)
-        self.gammas = [[0]*self.cluster]*num_data
+        self.gammas = [[0]*self.clusters]*num_data
 
-        for index, data_point in enumerate(self.data_point):
-            for cluster in range(self.cluster):
+        for index, data_point in enumerate(self.data_points):
+            for cluster in range(self.clusters):
                 self.gammas[index][cluster] = \
-                    mog_probability(data_point, cluster)
+                    self.mog_probability(data_point, cluster)
 
         # Normalize the gammas
         for gamma in gammas:
@@ -104,8 +117,8 @@ class EM:
                 all the data points where our weights are the probability of
                 appearing in cluster k. We then divide by the number of
                 datapoints we expect in the cluster. '''
-            weighted_sum = reduce(lambda x, y: x+y:
-                (v.scale_coordinate(p[cluster]) for
+            weighted_sum = reduce(lambda x, y: x+y, \
+                    (v.scale_coordinate(p[cluster]) for \
                     p,v in zip(self.gammas, self.data_points)))
 
             self.param_mu[cluster] = weighted_sum.scale_coordinate(1./num_expected_cluster)
@@ -120,9 +133,9 @@ class EM:
                 mat = numpy.matrix( (v - self.param_mu[cluster]).to_list() )
                 new_covariance += (mat * numpy.transpose(mat)) * p[cluster]
 
-            self.covariance = new_covariance * (1./num_expected_cluster)
+            self.covariance.matrix = new_covariance * (1./num_expected_cluster)
 
-    def em_train(self, iterations = None):
+    def train(self, iterations = None):
         '''
             Loops over expectation and maximization steps iteration times, or
             until convergence.
@@ -135,11 +148,11 @@ class EM:
             return
 
         if iterations:
-            for i in iterations:
+            for i in range(iterations):
                 self.expectation()
                 self.maximization()
         else:
-            while !converged:
+            while not converged:
                 self.expectation()
                 self.maximization()
                 # Eventually might want some way to measure convergence
@@ -168,10 +181,10 @@ class EM:
 
         '''
         if len(self.data_points) < self.use_threshold:
-            return random.choice([UP, LEFT, DOWN, RIGHT])
+            return random.choice(DIRECTIONS)
 
-        current_pos = coordinate(view.GetXPos, view.GetYPos)
-        possible_directions= [RIGHT, LEFT, UP, DOWN]
+        current_pos = Coordinate(view.GetXPos, view.GetYPos)
+        possible_directions= DIRECTIONS
         possible_coordinates = []
 
         possible_coordinates.append(current_pos.right())
@@ -191,10 +204,10 @@ class EM:
 
         pi = self.param_pi[cluster]
         mean = self.param_mu[cluster]
-        covariance = self.param_mu[cluster]
-        x_variance = numpy.sqrt(covariance[0][0])
-        y_variance = numpy.sqrt(covariance[1][1])
-        correlation = covariance[0][1] / x_variance / y_variance
+        covariance = self.param_covariance[cluster]
+        x_variance = numpy.sqrt(covariance.matrix[0][0])
+        y_variance = numpy.sqrt(covariance.matrix[1][1])
+        correlation = covariance.matrix[0][1] / x_variance / y_variance
 
         # http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Density_function
         term1 = 1. / (2 * numpy.pi * x_variance * y_variance * numpy.sqrt(1-correlation**2))
@@ -211,4 +224,4 @@ class EM:
             When we encounter a new nutritious plant we add it to our list of
             data points.
         '''
-        self.data_points.append(coordinate(x, y))
+        self.data_points.append(Coordinate(x, y))

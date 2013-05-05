@@ -1,7 +1,13 @@
-class covariance:
+import random
+import numpy
+from numpy import matrix
+from numpy import linalg
+
+class Covariance:
     def __init__(self, matrix_list):
         self.matrix = matrix(matrix_list)
 
+    @staticmethod
     def get_random_covariance(max_variance):
         var_x = random.randint(0, max_variance)
         var_y = random.randint(0, max_variance)
@@ -9,4 +15,4 @@ class covariance:
 
         symmetric_entry = correlation * var_x * var_y
 
-        return covariance([[var_x**2, symmetric_entry][symmetric_entry, var_y**2]]
+        return Covariance([[var_x**2, symmetric_entry],[symmetric_entry, var_y**2]])

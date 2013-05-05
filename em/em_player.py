@@ -10,7 +10,6 @@ DIRECTIONS = [
   gi.RIGHT
 ]
 
-
 def set_prev_state(view):
   view.prev_x = view.GetXPos()
   view.prev_y = view.GetYPos()
@@ -27,12 +26,9 @@ def get_move(view):
     
     view.em.train(5)
   
-  eat = False
-  if hasPlant and random.uniform(0, 1) < 0.5:
-    eat = True
-    
+  view.eat = True
   view.direction = view.em.get_direction(view)
 
   set_prev_state(view)
 
-  return (view.direction, hasPlant)
+  return (view.direction, view.eat)
