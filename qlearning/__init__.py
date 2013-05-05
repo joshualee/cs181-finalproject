@@ -181,6 +181,14 @@ def e_greedy(view):
   else:
     return get_argmax_qsa(view)
 
+def cur_plant_nutritious(view):
+  # image requires an argument to serve as label, but unused here
+  # since we just call classify, so give it a garbage value
+  image = nn.data_reader.Image(0)
+  image.pixels = view.GetImage()
+  # 1 for nutritious, 0 for poisonous
+  return (view.network.Classify(image) == 1)
+
 def get_move(view):
   if not hasattr(view, "bootstrapped"):
     bootstrap(view)
@@ -204,11 +212,7 @@ def get_move(view):
   
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
-    cur_plant_image = view.GetImage()
-    image = nn.data_reader.Image(0)
-    image.pixels = list(cur_plant_image)
-  
-    view.eat = (view.network.Classify(image) == 1)
+    view.eat = cur_plant_nutritious(view)
   
   # for now, save the q function each iteration
   save_q(view)
