@@ -162,7 +162,7 @@ class EM:
 
         '''
         if len(self.data_points) < self.use_threshold:
-            return random.choice(DIRECTIONS)
+            return random.choice([UP, LEFT, DOWN, RIGHT])
 
         current_pos = coordinate(view.GetXPos, view.GetYPos)
         possible_directions= [RIGHT, LEFT, UP, DOWN]

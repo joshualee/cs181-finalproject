@@ -47,16 +47,16 @@ def set_previous_state(view):
   view.prev_y = view.GetYPos()
   view.prev_life = view.GetLife()
   view.prev_plant_status = view.GetPlantInfo()
-  
+
   view.prev_direction = view.direction
   view.prev_eat = view.eat
-  
+
   view.prev_state = view.cur_state
 
 def determine_direction(view):
   assert((view.prev_x != view.GetXPos() and view.prev_y == view.GetYPos())
     or (view.prev_x == view.GetXPos() and view.prev_y != view.GetYPos()))
-  
+
   if view.prev_x < view.GetXPos():
     return gi.RIGHT
   elif view.prev_x > view.GetXPos():
@@ -104,14 +104,14 @@ def load_q(view):
   # file not found -- start new q function
   except IOError: view.q = {}
   except EOFError: view.q = {}
-  
+
 def save_q(view):
   q_file = open(Q_FILENAME, 'w')
   q_file.write(pickle.dumps(view.q))
-  
+
 def dir_towards_start(view):
   cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
-  
+
   if cur_x == start_x and cur_y == start_y:
     return random.choice(DIRECTIONS)
   else:
@@ -123,10 +123,10 @@ def dir_towards_start(view):
       # move in y direction
       if cur_y > start_y: return gi.DOWN
       else: return gi.UP
-  
+
 def dir_within_z(view, z):
   cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
-  
+
   if abs(cur_x - start_x) >= z or abs(cur_y - start_y) >= z:
     return dir_towards_start(view)
   else:
@@ -134,15 +134,15 @@ def dir_within_z(view, z):
 
 def bootstrap(view):
   view.bootstrapped = True
-  
+
   view.start_x = view.GetXPos()
   view.start_y = view.GetYPos()
-  
+
   load_q(view)
   view.grid = {}
-  
+
   view.network = nn.neural_net_pickle.load_neural_network('save/nn.pickle')
-  
+
   update_state(view)
 
 def update_state(view):
@@ -151,7 +151,7 @@ def update_state(view):
 
 def get_argmax_qsa(view):
   neg_inf = float('-inf')
-  
+
   max_dirs = []
   max_val = neg_inf
   for d in DIRECTIONS:
@@ -161,9 +161,9 @@ def get_argmax_qsa(view):
     elif view.q.get(sa, neg_inf) > max_val:
       max_val = view.q[sa]
       max_dirs = [d]
-  
+
   # If no actions for this state are in the dict, eturn a random direction
-  # Otherwise return the best direction, but break ties randomly  
+  # Otherwise return the best direction, but break ties randomly
   return random.choice(max_dirs)
 
 def get_max_qsa(view):
@@ -175,7 +175,7 @@ def e_greedy(view):
   t = view.GetRound() + 1 # get round is 0 indexed
   e = 1.0 / t
   u = random.uniform(0, 1)
-  
+
   if u < e:
     return random.choice(DIRECTIONS)
   else:
@@ -196,27 +196,27 @@ def get_move(view):
     moved_dir = determine_direction(view)
     reward = view.GetLife() - view.prev_life
     update_state(view)
-    
+
     sa = (view.prev_state, moved_dir)
-    
+
     prev_q = view.q.get(sa, 0)
     max_qsa = get_max_qsa(view)
-    
+
     view.q[(view.prev_state, moved_dir)] = \
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
-  
+
   view.direction = e_greedy(view)
   # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
-  
-  
+
+
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
     view.eat = cur_plant_nutritious(view)
-  
+
   # for now, save the q function each iteration
   save_q(view)
-  
+
   set_previous_state(view)
-  
+
   return (view.direction, view.eat)
