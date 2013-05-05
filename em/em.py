@@ -2,7 +2,7 @@ import coordinate
 import covariance
 
 class EM:
-    def __init__(self, clusters, max_x=25, max_y=25,
+    def __init__(self, clusters=3, max_x=25, max_y=25,
                        max_variance = 5, use_threshold = 5):
 
         '''
@@ -42,19 +42,21 @@ class EM:
             param_mu[k] is the mean value of a coordinate in cluster k
             param_covariance[k] is the covariance matrix of a cluster k
 
+            
         '''
 
         self.param_pi = []
         self.param_mu = []
         self.param_covariance = []
 
+        self.old_pi = []
+        self.old_mu = []
+        self.old_covariance = []
+
         for cluster in range(clusters):
-            self.param_pi.append
-                ( random.random() )
-            self.param_mu.append
-                ( coordinate.get_random_coordinate(max_y, max_y) )
-            self.param_covariance.append
-                ( covariance.get_random_covariance(max_variance) )
+            self.param_pi.append(random.random())
+            self.param_mu.append(coordinate.get_random_coordinate(max_y, max_y))
+            self.param_covariance.append(covariance.get_random_covariance(max_variance))
 
         # Normalize pi values
         pi_sum = sum(self.param_pi)
@@ -127,6 +129,10 @@ class EM:
         '''
 
         converged = False
+
+        # If we have no data we can't train
+        if len(self.data_points) == 0:
+            return
 
         if iterations:
             for i in iterations:
