@@ -17,15 +17,47 @@ def set_prev_state(view):
   view.prev_y = view.GetYPos()
   
   view.prev_life = view.GetLife()
+  
+  view.prev_plant_status = view.GetPlantInfo()
+  view.prev_dtree_class = view.cur_dtree_class
+  view.prev_nn_class = view.cur_nn_class
 
 def joint_classify(view):
-  dtree_class = dt.cur_plant_nutritious(view)
-  nn_class = nn.cur_plant_nutritious(view)
-  print "d_tree: {0}; nn: {1}".format(dtree_class, nn_class)
-  return dtree_class and nn_class
+  view.cur_dtree_class = dt.cur_plant_nutritious(view)
+  view.cur_nn_class = nn.cur_plant_nutritious(view)
+  return view.cur_dtree_class and view.cur_nn_class
+
+def dir_towards_start(view):
+  cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
+  
+  if cur_x == start_x and cur_y == start_y:
+    return random.choice(DIRECTIONS)
+  else:
+    if abs(cur_x - start_x) >= abs(cur_y - start_y):
+      # move in x direction
+      if cur_x > start_x: return gi.LEFT
+      else: return gi.RIGHT
+    else:
+      # move in y direction
+      if cur_y > start_y: return gi.DOWN
+      else: return gi.UP
+  
+def dir_within_z(view, z):
+  cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
+  
+  if abs(cur_x - start_x) >= z or abs(cur_y - start_y) >= z:
+    return dir_towards_start(view)
+  else:
+    return random.choice(DIRECTIONS)
+
 
 def get_move(view):
-  if view.GetRound() == 0:    
+  if view.GetRound() == 0:
+    view.record = {}
+    view.cur_dtree_class = 0
+    view.cur_nn_class = 0
+    view.start_x, view.start_y = view.GetXPos(), view.GetYPos()
+        
     view.em = em.EM()
     view.network = nn.load_neural_net('save/nn_15.pickle')
     view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
@@ -33,6 +65,13 @@ def get_move(view):
     reward = view.GetLife() - view.prev_life
     if reward > 0:
       view.em.add_data_point(view.prev_x, view.prev_y)
+      
+    # increment record counts
+    if view.prev_plant_status == gi.STATUS_UNKNOWN_PLANT:
+      prev_class = (view.prev_dtree_class, view.prev_nn_class, reward)
+      if prev_class in view.record: view.record[prev_class] += 1
+      else: view.record[prev_class] = 1
+      print view.record
     
     view.em.train(10)
   
@@ -40,7 +79,11 @@ def get_move(view):
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
     view.eat = joint_classify(view)
   
-  view.direction = view.em.get_direction(view)
+  # always eat, for data collection
+  view.eat = True
+  
+  # view.direction = view.em.get_direction(view)
+  view.direction = dir_within_z(view, 50)
   set_prev_state(view)
 
   return (view.direction, view.eat)

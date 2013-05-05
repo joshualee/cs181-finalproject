@@ -60,9 +60,8 @@ def run(options):
       game_interface.curses_draw_board(game)
       game_interface.curses_init_round(game)
     else:
-      pass
-      # print mv1, eat1, mv2, eat2
-      # print player1_view.GetLife(), player2_view.GetLife()
+      print mv1, eat1, mv2, eat2
+      print player1_view.GetLife(), player2_view.GetLife()
     # Check whether someone's life is negative.
     l1 = player1_view.GetLife()
     l2 = player2_view.GetLife()
@@ -83,7 +82,7 @@ def run(options):
         else:
           print 'Player 1 wins: %d v. %d' % (l1, l2)
       # Wait for input
-      sys.stdin.read(1)
+      # sys.stdin.read(1)
       if options.display:
         game_interface.curses_close()
       break
