@@ -1,0 +1,95 @@
+python run_game.py --starting_life=1000000 --life_per_turn=0 --observation_cost=0 -d 0
+
+We observe:
+
+{'down': {'down': 42070, 'right': 9084, 'up': 0, 'left': 8987}, 
+'right': {'down': 8809, 'right': 42185, 'up': 8938, 'left': 0}, 
+'up': {'down': 0, 'right': 8920, 'up': 42113, 'left': 9033}': 0, 
+'right': 8920, 'up': 42114, 'left': 9033}, 'left': {'down': 9128, 'right': 0, 'up': 8941, 'left': 42198}}
+
+Telling us that transitions probabilities are:
+
+Move in your direction: 70%
+Move in either orthogonal direction: 15%
+
+But we want to test if this is true everywhere in the world. So we first take 10000 steps in one direction, THEN do a random walk. We do the same for rewards and look at their distribution.
+
+
+-----
+For each scenario, we observe the following.
+
+- Observe transition probabilies
+- Plant distribution
+- FSM state distribution
+
+Random walk for 50000
+
+{'down': {'down': 8702, 'right': 1922, 'up': 0, 'left': 1805}, 'right': {'down': 1825, 'right': 8912, 'up': 1841, 'left': 0}, 'up': {'down': 0, 'right': 1896, 'up': 8773, 'left': 1917}, 'left': {'down': 1840, 'right': 0, 'up': 1879, 'left': 8688}}
+{0: 48093, 20: 63, -10: 1844}
+
+Up for 50000 then random walk for 50000 (only log the random walk)
+
+{'down': {'down': 8849, 'right': 1923, 'up': 0, 'left': 1859}, 'right': {'down': 1827, 'right': 8738, 'up': 1859, 'left': 0}, 'up': {'down': 0, 'right': 1893, 'up': 8821, 'left': 1767}, 'left': {'down': 1873, 'right': 0, 'up': 1795, 'left': 8796}}
+{0: 48143, -10: 1857}
+
+Down for 50000 then random walk for 50000 (only log the random walk)
+
+{'down': {'down': 8842, 'right': 1856, 'up': 0, 'left': 1936}, 'right': {'down': 1829, 'right': 8756, 'up': 1846, 'left': 0}, 'up': {'down': 0, 'right': 1892, 'up': 8733, 'left': 1915}, 'left': {'down': 1812, 'right': 0, 'up': 1875, 'left': 8708}}
+{0: 48486, -10: 1514}
+
+Left for 50000 then random walk for 50000 (only log the random walk)
+
+{'down': {'down': 8689, 'right': 1866, 'up': 0, 'left': 1807}, 'right': {'down': 1844, 'right': 8748, 'up': 1820, 'left': 0}, 'up': {'down': 0, 'right': 1833, 'up': 8735, 'left': 1865}, 'left': {'down': 1915, 'right': 0, 'up': 1918, 'left': 8960}}
+{0: 48063, -10: 1937}
+
+Right for 50000 then random walk for 50000 (only log the random walk)
+{'down': {'down': 8899, 'right': 1836, 'up': 0, 'left': 1805}, 'right': {'down': 1864, 'right': 8790, 'up': 1876, 'left': 0}, 'up': {'down': 0, 'right': 1866, 'up': 8674, 'left': 1859}, 'left': {'down': 1907, 'right': 0, 'up': 1899, 'left': 8725}}
+{0: 47862, -10: 2138}
+
+Attempt to stay at start for 50000
+
+{'down': {'down': 8513, 'right': 1791, 'up': 0, 'left': 1810}, 'right': {'down': 1881, 'right': 9191, 'up': 1960, 'left': 0}, 'up': {'down': 0, 'right': 1725, 'up': 8457, 'left': 1813}, 'left': {'down': 1899, 'right': 0, 'up': 1876, 'left': 9084}}
+{0: 49995, -10: 5}
+
+Attempt to stay within 10 of start for 50000
+{'down': {'down': 8697, 'right': 1892, 'up': 0, 'left': 1801}, 'right': {'down': 1925, 'right': 8759, 'up': 1846, 'left': 0}, 'up': {'down': 0, 'right': 1868, 'up': 8798, 'left': 1927}, 'left': {'down': 1866, 'right': 0, 'up': 1837, 'left': 8784}}
+{0: 49953, 20: 21, -10: 26}
+
+Attempt to stay within 25 of start for 50000
+{'down': {'down': 8717, 'right': 1895, 'up': 0, 'left': 1889}, 'right': {'down': 1858, 'right': 8763, 'up': 1863, 'left': 0}, 'up': {'down': 0, 'right': 1915, 'up': 8708, 'left': 1910}, 'left': {'down': 1852, 'right': 0, 'up': 1873, 'left': 8757}}
+{0: 49698, 20: 99, -10: 203}
+
+Atempt to stay within 50 of start for 50000
+
+{'down': {'down': 8652, 'right': 1802, 'up': 0, 'left': 1822}, 'right': {'down': 1879, 'right': 8837, 'up': 1845, 'left': 0}, 'up': {'down': 0, 'right': 1919, 'up': 8801, 'left': 1913}, 'left': {'down': 1923, 'right': 0, 'up': 1816, 'left': 8791}}
+{0: 49159, 20: 107, -10: 734}
+
+Atempt to stay within 75 of start for 50000
+
+{'down': {'down': 8731, 'right': 1881, 'up': 0, 'left': 1869}, 'right': {'down': 1888, 'right': 8734, 'up': 1832, 'left': 0}, 'up': {'down': 0, 'right': 1867, 'up': 8766, 'left': 1891}, 'left': {'down': 1926, 'right': 0, 'up': 1958, 'left': 8657}}
+{0: 49044, 20: 80, -10: 876}
+
+Atempt to stay within 100 of start for 50000
+
+{'down': {'down': 8875, 'right': 1872, 'up': 0, 'left': 1811}, 'right': {'down': 1919, 'right': 8717, 'up': 1901, 'left': 0}, 'up': {'down': 0, 'right': 1844, 'up': 8682, 'left': 1847}, 'left': {'down': 1798, 'right': 0, 'up': 1913, 'left': 8821}}
+{0: 48474, 20: 88, -10: 1438}
+
+Attempt to stay within 250 of start for 50000
+
+{'down': {'down': 8840, 'right': 1857, 'up': 0, 'left': 1846}, 'right': {'down': 1859, 'right': 8833, 'up': 1908, 'left': 0}, 'up': {'down': 0, 'right': 1867, 'up': 8703, 'left': 1819}, 'left': {'down': 1891, 'right': 0, 'up': 1889, 'left': 8688}}
+{0: 48105, 20: 56, -10: 1839}
+
+Attempt to stay within 500 of start for 50000
+
+{'down': {'down': 8807, 'right': 1895, 'up': 0, 'left': 1909}, 'right': {'down': 1950, 'right': 8761, 'up': 1882, 'left': 0}, 'up': {'down': 0, 'right': 1769, 'up': 8634, 'left': 1852}, 'left': {'down': 1884, 'right': 0, 'up': 1842, 'left': 8815}}
+{0: 48205, 20: 56, -10: 1739}
+
+---
+
+Do plants regrow? No.
+
+Are plants spawned deterministically? No.
+
+Write program that stores (location) -> reward
+
+Run multiple times and see if there are any differences

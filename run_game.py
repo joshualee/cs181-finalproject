@@ -51,6 +51,10 @@ def run(options):
     (mv1, eat1) = get_move(player1_view, player1.player.get_move, options, 1)
     (mv2, eat2) = get_move(player2_view, player2.player.get_move, options, 2)
 
+    # hack to break early
+    if mv1 == None:
+      break
+
     game.ExecuteMoves(mv1, eat1, mv2, eat2)
     if options.display:
       game_interface.curses_draw_board(game)
