@@ -30,7 +30,6 @@ def validateInput(args):
   return(args_map)
 
 def main():
-
   # Parsing command line arguments
   args_map = validateInput(sys.argv)
   epochs = int(args_map['-e'])
@@ -45,16 +44,14 @@ def main():
       edge_probability = float(args_map['-p'])
 
   # Load in the training data.
-  images = DataReader.GetImages('training-9k.txt', -1)
+  images = DataReader.GetImages('../data/500n_500p.json', -1)
   for image in images:
-    assert len(image.pixels) == 14
-    assert len(image.pixels[0]) == 14
+    assert len(image.pixels) == 36
 
   # Load the validation set.
-  validation = DataReader.GetImages('validation-1k.txt', -1)
+  validation = DataReader.GetImages('../data/500n_500p.json', -1)
   for image in validation:
-    assert len(image.pixels) == 14
-    assert len(image.pixels[0]) == 14
+    assert len(image.pixels) == 36
 
   # Initializing network
 
@@ -87,8 +84,9 @@ def main():
   epochs, data = network.Train(images, validation, rate, epochs)
   data = data[1::]
 
-  test_images = DataReader.GetImages('test-1k.txt', -1)
+  test_images = DataReader.GetImages('../data/500n_500p.json', -1)
   test_performance = network.Performance(test_images)
+  
   print "Performance on test data: {0}".format(test_performance)
 
   if graph:
