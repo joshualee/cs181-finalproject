@@ -1,9 +1,19 @@
+import sys
+import os
 import time
 import common
 import random
 import pickle
 import game_interface as gi
+import neural_network as nn
 
+
+# to import neural network
+parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+parentdir += '/neural_network'
+sys.path.insert(0,parentdir)
+import neural_net_impl
+import neural_net
 
 Q_FILENAME = "save/q_11.pickle"
 
@@ -131,6 +141,8 @@ def bootstrap(view):
   load_q(view)
   view.grid = {}
   
+  view.network = nn.neural_net_pickle.load_neural_network('save/nn.pickle')
+  
   update_state(view)
 
 def update_state(view):
@@ -189,7 +201,14 @@ def get_move(view):
   # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
   
-  view.eat = True
+  
+  view.eat = False
+  if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
+    cur_plant_image = view.GetImage()
+    image = nn.data_reader.Image(0)
+    image.pixels = list(cur_plant_image)
+  
+    view.eat = (view.network.Classify(image) == 1)
   
   # for now, save the q function each iteration
   save_q(view)

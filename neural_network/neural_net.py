@@ -235,8 +235,7 @@ class NetworkFramework(object):
 
       if iteration_without_update == 2:
           break;
-
-    nnp.save_neural_network(self, 'nn.pickle')
+          
     return(loops, performance_log)
 
   def RegisterFeedForwardFunction(self, fn):
