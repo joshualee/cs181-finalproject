@@ -4,6 +4,7 @@ from neural_net_impl import *
 import sys
 import random
 import matplotlib.pyplot as plt
+import neural_net_pickle as nnp
 
 
 def parseArgs(args):
@@ -81,10 +82,13 @@ def main():
           len(network.network.outputs)))
   print '* * * * * * * * *'
   # Train the network.
-  epochs, data = network.Train(images, validation, rate, epochs)
-  data = data[1::]
+  # epochs, data = network.Train(images, validation, rate, epochs)
+  # data = data[1::]
 
+  network = nnp.load_neural_network('nn.pickle')
   test_images = DataReader.GetImages('../data/32kset-test-5000.json', -1)
+  
+  
   test_performance = network.Performance(test_images)
   
   print "Performance on test data: {0}".format(test_performance)

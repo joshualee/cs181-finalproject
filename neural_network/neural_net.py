@@ -1,3 +1,4 @@
+import neural_net_pickle as nnp
 import math
 
 class Weight:
@@ -232,9 +233,10 @@ class NetworkFramework(object):
       else:
         iteration_without_update += 1
 
-      if iteration_without_update == 10:
+      if iteration_without_update == 2:
           break;
 
+    nnp.save_neural_network(self, 'nn.pickle')
     return(loops, performance_log)
 
   def RegisterFeedForwardFunction(self, fn):
