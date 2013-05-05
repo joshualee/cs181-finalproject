@@ -101,9 +101,9 @@ def load_q(view):
     q_file = open(Q_FILENAME, 'r')
     view.q = pickle.loads(q_file.read())
     print "successfully loaded!!!\n\n\n\n\n~~~~~~~~~~~~~~"
-  except IOError:
-    # file not found -- start new q function
-    view.q = {}
+  # file not found -- start new q function
+  except IOError: view.q = {}
+  except EOFError: view.q = {}
   
 def save_q(view):
   q_file = open(Q_FILENAME, 'w')
