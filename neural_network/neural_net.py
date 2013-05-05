@@ -233,7 +233,7 @@ class NetworkFramework(object):
       else:
         iteration_without_update += 1
 
-      if iteration_without_update == 2:
+      if iteration_without_update == 5:
           break;
           
     return(loops, performance_log)

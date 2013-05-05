@@ -15,6 +15,7 @@ sys.path.insert(0,parentdir)
 import neural_net_impl
 import neural_net
 
+NN_FILENAME = 'save/nn_30.pickle'
 Q_FILENAME = "save/q_11.pickle"
 
 DIRECTIONS = [
@@ -141,7 +142,7 @@ def bootstrap(view):
   load_q(view)
   view.grid = {}
   
-  view.network = nn.neural_net_pickle.load_neural_network('save/nn.pickle')
+  view.network = nn.neural_net_pickle.load_neural_network(NN_FILENAME)
   
   update_state(view)
 
