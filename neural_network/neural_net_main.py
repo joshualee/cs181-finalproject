@@ -82,11 +82,11 @@ def main():
           len(network.network.outputs)))
   print '* * * * * * * * *'
   # Train the network.
-  # epochs, data = network.Train(images, validation, rate, epochs)
-  # data = data[1::]
+  epochs, data = network.Train(images, validation, rate, epochs)
+  data = data[1::]
   
-  # nnp.save_neural_network(network, 'nn.pickle')
-  network = nnp.load_neural_network('nn.pickle')
+  nnp.save_neural_network(network, 'nn_15.pickle')
+  # network = nnp.load_neural_network('nn_30.pickle')
   test_images = DataReader.GetImages('../data/32kset-test-5000.json', -1)
   
   
