@@ -1,11 +1,12 @@
 import time
 import common
 import random
-import json
+import pickle
 import game_interface as gi
 
-DATA_FILENAME = "data/random_walk.json"
-OBS_PER_PLANT = 10
+
+Q_FILENAME = "save/q_11.pickle"
+
 DIRECTIONS = [
   gi.UP,
   gi.DOWN,
@@ -36,10 +37,6 @@ def set_previous_state(view):
   view.prev_y = view.GetYPos()
   view.prev_life = view.GetLife()
   view.prev_plant_status = view.GetPlantInfo()
-  
-  view.prev_plant_images = []
-  for i in range(OBS_PER_PLANT):
-    view.prev_plant_images.append(view.GetImage())
   
   view.prev_direction = view.direction
   view.prev_eat = view.eat
@@ -78,10 +75,52 @@ def set_state(view):
   right = get_grid(view, cur_x+1, cur_y)
   down = get_grid(view, cur_x, cur_y-1)
   left = get_grid(view, cur_x-1, cur_y)
-  view.cur_state = (cur, up, right, down, left)
+  x_dist = cur_x - view.start_x
+  y_dist = cur_y - view.start_y
+  up_left = get_grid(view, cur_x-1, cur_y+1)
+  up_right = get_grid(view, cur_x+1, cur_y+1)
+  down_left = get_grid(view, cur_x-1, cur_y-1)
+  down_right = get_grid(view, cur_x+1, cur_y-1)
+  view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, x_dist, y_dist)
 
 def update_grid(view):
   view.grid[(view.GetXPos(), view.GetYPos())] = view.GetPlantInfo()
+
+def load_q(view):
+  try:
+    q_file = open(Q_FILENAME, 'r')
+    view.q = pickle.loads(q_file.read())
+    print "successfully loaded!!!\n\n\n\n\n~~~~~~~~~~~~~~"
+  except IOError:
+    # file not found -- start new q function
+    view.q = {}
+  
+def save_q(view):
+  q_file = open(Q_FILENAME, 'w')
+  q_file.write(pickle.dumps(view.q))
+  
+def dir_towards_start(view):
+  cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
+  
+  if cur_x == start_x and cur_y == start_y:
+    return random.choice(DIRECTIONS)
+  else:
+    if abs(cur_x - start_x) >= abs(cur_y - start_y):
+      # move in x direction
+      if cur_x > start_x: return gi.LEFT
+      else: return gi.RIGHT
+    else:
+      # move in y direction
+      if cur_y > start_y: return gi.DOWN
+      else: return gi.UP
+  
+def dir_within_z(view, z):
+  cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
+  
+  if abs(cur_x - start_x) >= z or abs(cur_y - start_y) >= z:
+    return dir_towards_start(view)
+  else:
+    return get_argmax_qsa(view)
 
 def bootstrap(view):
   view.bootstrapped = True
@@ -89,7 +128,7 @@ def bootstrap(view):
   view.start_x = view.GetXPos()
   view.start_y = view.GetYPos()
   
-  view.q = {}
+  load_q(view)
   view.grid = {}
   
   update_state(view)
@@ -147,8 +186,13 @@ def get_move(view):
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
   
   view.direction = e_greedy(view)
+  # view.direction = get_argmax_qsa(view)
+  # view.direction = dir_within_z(view, 50)
   
   view.eat = True
+  
+  # for now, save the q function each iteration
+  save_q(view)
   
   set_previous_state(view)
   
