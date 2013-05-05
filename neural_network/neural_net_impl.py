@@ -369,8 +369,6 @@ class HiddenNetwork(EncodedNetworkFramework):
       self.network.AddNode(new_output, NeuralNetwork.OUTPUT)
       for hidden_node in self.network.hidden_nodes:
         new_output.AddInput(hidden_node, None, self.network)
-
-
 #<--- Problem 3, Question 8 --->
 
 class CustomNetwork(EncodedNetworkFramework):

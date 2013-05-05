@@ -1,9 +1,19 @@
+import sys
+import os
 import time
 import common
 import random
 import pickle
 import game_interface as gi
+import neural_network as nn
 
+
+# to import neural network
+parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+parentdir += '/neural_network'
+sys.path.insert(0,parentdir)
+import neural_net_impl
+import neural_net
 
 Q_FILENAME = "save/q_11.pickle"
 
@@ -91,9 +101,9 @@ def load_q(view):
     q_file = open(Q_FILENAME, 'r')
     view.q = pickle.loads(q_file.read())
     print "successfully loaded!!!\n\n\n\n\n~~~~~~~~~~~~~~"
-  except IOError:
-    # file not found -- start new q function
-    view.q = {}
+  # file not found -- start new q function
+  except IOError: view.q = {}
+  except EOFError: view.q = {}
   
 def save_q(view):
   q_file = open(Q_FILENAME, 'w')
@@ -130,6 +140,8 @@ def bootstrap(view):
   
   load_q(view)
   view.grid = {}
+  
+  view.network = nn.neural_net_pickle.load_neural_network('save/nn.pickle')
   
   update_state(view)
 
@@ -169,6 +181,14 @@ def e_greedy(view):
   else:
     return get_argmax_qsa(view)
 
+def cur_plant_nutritious(view):
+  # image requires an argument to serve as label, but unused here
+  # since we just call classify, so give it a garbage value
+  image = nn.data_reader.Image(0)
+  image.pixels = view.GetImage()
+  # 1 for nutritious, 0 for poisonous
+  return (view.network.Classify(image) == 1)
+
 def get_move(view):
   if not hasattr(view, "bootstrapped"):
     bootstrap(view)
@@ -189,7 +209,10 @@ def get_move(view):
   # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
   
-  view.eat = True
+  
+  view.eat = False
+  if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
+    view.eat = cur_plant_nutritious(view)
   
   # for now, save the q function each iteration
   save_q(view)

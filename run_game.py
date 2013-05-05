@@ -60,9 +60,8 @@ def run(options):
       game_interface.curses_draw_board(game)
       game_interface.curses_init_round(game)
     else:
-      pass
-      # print mv1, eat1, mv2, eat2
-      # print player1_view.GetLife(), player2_view.GetLife()
+      print mv1, eat1, mv2, eat2
+      print player1_view.GetLife(), player2_view.GetLife()
     # Check whether someone's life is negative.
     l1 = player1_view.GetLife()
     l2 = player2_view.GetLife()
