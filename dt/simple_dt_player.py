@@ -37,7 +37,7 @@ def cur_plant_nutritious(view):
 
 def get_move(view):
   if view.GetRound() == 0:
-    view.dtree = load_dtree('save/dtree.pickle')
+    view.dtree = load_dtree('save/dtree_boost25_32k.pickle')
   # Choose a random direction.
   # If there is a plant in this location, then try and eat it.
   hasPlant = view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT
