@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from pylab import *
 import math
 import json
+import pickle
+PICKLE_FILENAME = '../save/dtree_boost25_32k.pickle'
 
 class Globals:
     noisyFlag = False
@@ -285,6 +287,9 @@ def do_boosting(dataset, noisy_flag):
             training_accuracy = accuracy(trees, training_set, set=True)
             test_accuracy = accuracy(trees, test_set, set=True)
             
+            outfile = open(PICKLE_FILENAME, 'w')
+            outfile.write(pickle.dumps(trees))
+            
             # update accumulators
             avg_training_performance += training_accuracy
             avg_test_performance += test_accuracy
@@ -345,8 +350,8 @@ def main():
 
     # Read in the data file
     
-    f = open("../data/100n_200p.json")
-    # f = open("../data/12000n_20000p.json")
+    # f = open("../data/100n_200p.json")
+    f = open("../data/12000n_20000p.json")
     
     data = []
     
@@ -382,4 +387,5 @@ def main():
     if (p3):
         do_boosting(dataset, noisyFlag)
 
-main()
+if __name__ == '__main__':
+  main()
