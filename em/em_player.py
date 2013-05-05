@@ -18,10 +18,11 @@ def set_prev_state(view):
   
   view.prev_life = view.GetLife()
 
-
 def joint_classify(view):
   dtree_class = dt.cur_plant_nutritious(view)
   nn_class = nn.cur_plant_nutritious(view)
+  print "d_tree: {0}; nn: {1}".format(dtree_class, nn_class)
+  return dtree_class and nn_class
 
 def get_move(view):
   if view.GetRound() == 0:    
@@ -33,11 +34,13 @@ def get_move(view):
     if reward > 0:
       view.em.add_data_point(view.prev_x, view.prev_y)
     
-    view.em.train(5)
+    view.em.train(10)
   
   view.eat = True
+  if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
+    view.eat = joint_classify(view)
+  
   view.direction = view.em.get_direction(view)
-
   set_prev_state(view)
 
   return (view.direction, view.eat)
