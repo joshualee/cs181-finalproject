@@ -2,9 +2,11 @@ import time
 import common
 import random
 import json
+import pickle
 import game_interface as gi
 
 DATA_FILENAME = "data/random_walk.json"
+JSON_FILENAME = "data/data.json"
 OBS_PER_PLANT = 10
 DIRECTIONS = [
   gi.UP,
@@ -164,17 +166,17 @@ def get_move(view):
     # else:
     #   view.state_dict[view.state] = 1
     
-    # if len(view.prev_plant_images[0]) != 0:
-    #   new_data = json.dumps((view.prev_plant_images, reward))
-    #   view.data_file.write("{0}\n".format(new_data))
+    if len(view.prev_plant_images[0]) != 0:
+      new_data = json.dumps((view.prev_plant_images, reward))
+      view.data_file.write("{0}\n".format(new_data))
         
   # if view.GetRound() < 50000:
   #   view.direction = gi.LEFT
   # else:
   #   view.direction = random.choice(DIRECTIONS)
     
-  # view.direction = random.choice(DIRECTIONS)
-  view.direction = dir_within_z(view, 500)
+  view.direction = random.choice(DIRECTIONS)
+  # view.direction = dir_within_z(view, 500)
   view.eat = True
   set_previous_state(view)
   
@@ -187,3 +189,26 @@ def get_move(view):
     view.direction = None
   
   return (view.direction, view.eat)
+
+def collect_data(view):
+  if not hasattr(view, "initialized"):
+    view.initialized = True
+    view.data_file = open(JSON_FILENAME, 'a')
+    
+    view.start_x, view.start_y = view.GetXPos(), view.GetYPos()
+  else:
+    reward = view.GetLife() - view.prev_life
+    
+    if len(view.prev_plant) != 0 and view.prev_status == gi.STATUS_UNKNOWN_PLANT:
+      new_data = json.dumps((view.prev_plant, reward))
+      view.data_file.write(new_data + "\n")
+    
+  view.prev_life = view.GetLife()
+  view.prev_plant = view.GetImage()
+  view.prev_status = view.GetPlantInfo()
+  
+  # d = random.choice(DIRECTIONS)
+  d = dir_within_z(view, 200)
+  eat = True
+  
+  return (d, eat)
