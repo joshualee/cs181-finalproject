@@ -93,11 +93,11 @@ class EM:
                     self.mog_probability(data_point, cluster)
 
         # Normalize the gammas
-        for gamma in gammas:
+        for cluster,gamma in enumerate(self.gammas):
             sum_gamma = sum(gamma)
-            self.gammas = map(lambda g: g/sum_gamma, gamma)
+            self.gammas[cluster] = map(lambda g: g/sum_gamma, gamma)
 
-    def maximazation(self):
+    def maximization(self):
         '''
             The maximization step is responsible for updating our parameters
             according to our predicted classifications.
@@ -133,7 +133,7 @@ class EM:
                 mat = numpy.matrix( (v - self.param_mu[cluster]).to_list() )
                 new_covariance += (mat * numpy.transpose(mat)) * p[cluster]
 
-            self.covariance.matrix = new_covariance * (1./num_expected_cluster)
+            self.param_covariance[cluster].matrix = new_covariance * (1./num_expected_cluster)
 
     def train(self, iterations = None):
         '''
@@ -169,8 +169,8 @@ class EM:
         for index,move in enumerate(potential_moves):
             pdf.append(0)
             # Sum probability at position for each cluster
-            for cluster in self.clusters:
-                pdf[index] += mog_probability(move, cluster)
+            for cluster in range(self.clusters):
+                pdf[index] += self.mog_probability(move, cluster)
 
         return pdf.index(max(pdf))
 
@@ -183,7 +183,7 @@ class EM:
         if len(self.data_points) < self.use_threshold:
             return random.choice(DIRECTIONS)
 
-        current_pos = Coordinate(view.GetXPos, view.GetYPos)
+        current_pos = Coordinate(view.GetXPos(), view.GetYPos())
         possible_directions= DIRECTIONS
         possible_coordinates = []
 
@@ -205,9 +205,10 @@ class EM:
         pi = self.param_pi[cluster]
         mean = self.param_mu[cluster]
         covariance = self.param_covariance[cluster]
-        x_variance = numpy.sqrt(covariance.matrix[0][0])
-        y_variance = numpy.sqrt(covariance.matrix[1][1])
-        correlation = covariance.matrix[0][1] / x_variance / y_variance
+
+        x_variance = numpy.sqrt(covariance.matrix[0,0])
+        y_variance = numpy.sqrt(covariance.matrix[1,1])
+        correlation = covariance.matrix[0,1] / x_variance / y_variance
 
         # http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Density_function
         term1 = 1. / (2 * numpy.pi * x_variance * y_variance * numpy.sqrt(1-correlation**2))
