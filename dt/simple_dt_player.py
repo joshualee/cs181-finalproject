@@ -17,7 +17,6 @@ DIRECTIONS = [
   gi.RIGHT
 ]
 
-
 def load_dtree(infile):
   infile = open(infile, 'r')
   return pickle.loads(infile.read())

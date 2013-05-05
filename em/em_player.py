@@ -2,6 +2,8 @@ import game_interface as gi
 import random
 import time
 import em
+import simple_neural_net_player as nn
+import dt.simple_dt_player as dt
 
 DIRECTIONS = [
   gi.UP,
@@ -16,9 +18,16 @@ def set_prev_state(view):
   
   view.prev_life = view.GetLife()
 
+
+def joint_classify(view):
+  dtree_class = dt.cur_plant_nutritious(view)
+  nn_class = nn.cur_plant_nutritious(view)
+
 def get_move(view):
-  if view.GetRound() == 0:
+  if view.GetRound() == 0:    
     view.em = em.EM()
+    view.network = nn.load_neural_net('save/nn_15.pickle')
+    view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
   else:
     reward = view.GetLife() - view.prev_life
     if reward > 0:

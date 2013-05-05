@@ -17,6 +17,9 @@ DIRECTIONS = [
   gi.RIGHT
 ]
 
+def load_neural_net(infile):
+  return nn.neural_net_pickle.load_neural_network(infile)
+
 def cur_plant_nutritious(view):
   # image requires an argument to serve as label, but unused here
   # since we just call classify, so give it a garbage value
@@ -27,7 +30,7 @@ def cur_plant_nutritious(view):
 
 def get_move(view):
   if view.GetRound() == 0:
-    view.network = nn.neural_net_pickle.load_neural_network('save/nn.pickle')
+    view.network = load_neural_net('save/nn.pickle')
   # Choose a random direction.
   # If there is a plant in this location, then try and eat it.
   hasPlant = view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT

@@ -36,8 +36,6 @@ class Coordinate:
     def down(self):
         return Coordinate(self.x, self.y - 1)
     def right(self):
-        print self.x
-        print self.y
         return Coordinate(self.x + 1, self.y)
 
     @staticmethod
