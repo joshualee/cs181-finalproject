@@ -18,7 +18,7 @@ DIRECTIONS = [
 
 class EM:
     def __init__(self, clusters=3, max_x=25, max_y=25,
-                       max_variance = 5, use_threshold = 5):
+                       max_variance = 5, use_threshold = 3):
 
         '''
             Our EM object uses a mixture of gaussians model to generate a PDF
@@ -117,6 +117,8 @@ class EM:
         for cluster in range(self.clusters):
             # Number of data points we expect to belong to a cluster
             num_expected_cluster = sum(g[cluster] for g in self.gammas)
+            if num_expected_cluster == 0:
+                num_expected_cluster = .0001
 
             ''' The new pi for a cluster k is the sum of the probabilities
                 every data point is in that cluster. '''
