@@ -3,12 +3,12 @@ import random
 import time
 import os
 import sys
-
+import neural_network as nn
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0,parentdir + '/dt')
-import dtree
-import main
-import pickle
+parentdir += '/neural_network'
+sys.path.insert(0,parentdir)
+import neural_net_impl
+import neural_net
 
 DIRECTIONS = [
   gi.UP,
@@ -17,24 +17,19 @@ DIRECTIONS = [
   gi.RIGHT
 ]
 
-def load_dtree(infile):
-  infile = open(infile, 'r')
-  return pickle.loads(infile.read())
+def load_neural_net(infile):
+  return nn.neural_net_pickle.load_neural_network(infile)
 
-def cur_plant_nutritious(view):
+def cur_plant_nutritious(view, plant_img):
   # image requires an argument to serve as label, but unused here
   # since we just call classify, so give it a garbage value
-  
-  # add dummy label for Example class to have proper length input
-  plant = list(view.GetImage()) + [0]
-  example = dtree.Example(plant)
-  
-  nutritious = main.weighted_classify_soft(view.dtree, example)
-  return nutritious
+  image = nn.data_reader.Image(0)
+  image.pixels = plant_img
+  return view.network.ClassifySoft(image)
 
 def get_move(view):
   if view.GetRound() == 0:
-    view.dtree = load_dtree('save/dtree_boost25_32k.pickle')
+    view.network = load_neural_net('save/nn.pickle')
   # Choose a random direction.
   # If there is a plant in this location, then try and eat it.
   hasPlant = view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT

@@ -1,5 +1,6 @@
-import player1.player
+# import player1.player
 import player2.player
+import player.player
 import game_interface
 import random
 import signal
@@ -49,7 +50,7 @@ def run(options):
   
   # Keep running until one player runs out of life.
   while True:
-    (mv1, eat1) = get_move(player1_view, player1.player.get_move, options, 1)
+    (mv1, eat1) = get_move(player1_view, player.player.get_move, options, 1)
     (mv2, eat2) = get_move(player2_view, player2.player.get_move, options, 2)
 
     # hack to break early
@@ -83,7 +84,7 @@ def run(options):
         else:
           print 'Player 1 wins: %d v. %d' % (l1, l2)
       # Wait for input
-      sys.stdin.read(1)
+      # sys.stdin.read(1)
       if options.display:
         game_interface.curses_close()
       break

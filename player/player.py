@@ -1,3 +1,8 @@
+import os
+import sys
+mydir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, mydir)
+
 import common
 import data_collector
 import qlearning
