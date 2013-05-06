@@ -62,13 +62,13 @@ def get_move(view):
     view.cur_nn_class = 0
     view.start_x, view.start_y = view.GetXPos(), view.GetYPos()
         
-    # view.em = em.EM()
+    view.em = em.EM()
     view.network = nnp.load_neural_net('save/nn_15.pickle')
     view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
   else:
     reward = view.GetLife() - view.prev_life
-    # if reward > 0:
-      # view.em.add_data_point(view.prev_x, view.prev_y)
+    if reward > 0:
+      view.em.add_data_point(view.prev_x, view.prev_y)
       
     # increment record counts
     if view.prev_plant_status == gi.STATUS_UNKNOWN_PLANT:
@@ -77,16 +77,16 @@ def get_move(view):
       else: view.record[prev_class] = 1
       print view.record
     
-    # view.em.train(5000)
+    view.em.train(20000)
   
   view.eat = True
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
     view.eat = joint_classify(view)
   
   # always eat, for data collection
-  view.eat = True
+  # view.eat = True
   
-  # view.direction = view.em.get_direction(view)
+  view.direction = view.em.get_direction(view)
   view.direction = dir_within_z(view, 50)
   set_prev_state(view)
 

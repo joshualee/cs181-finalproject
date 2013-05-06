@@ -19,8 +19,7 @@ sys.path.insert(0,parentdir)
 import neural_net_impl
 import neural_net
 
-NN_FILENAME = 'save/nn_30.pickle'
-Q_FILENAME = "save/q_trained.pickle"
+Q_FILENAME = "save/q_tournament.pickle"
 
 DIRECTIONS = [
   gi.UP,
@@ -93,13 +92,11 @@ def set_state(view):
   right = get_grid(view, cur_x+1, cur_y)
   down = get_grid(view, cur_x, cur_y-1)
   left = get_grid(view, cur_x-1, cur_y)
-  # x_dist = cur_x - view.start_x
-  # y_dist = cur_y - view.start_y
   up_left = get_grid(view, cur_x-1, cur_y+1)
   up_right = get_grid(view, cur_x+1, cur_y+1)
   down_left = get_grid(view, cur_x-1, cur_y-1)
   down_right = get_grid(view, cur_x+1, cur_y-1)
-  view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, cur_x, cur_y)
+  view.cur_state = (cur_x, cur_y, cur, up, right, down, left, up_left, up_right, down_left, down_right)
 
 def update_grid(view):
   view.grid[(view.GetXPos(), view.GetYPos())] = view.GetPlantInfo()
@@ -108,6 +105,7 @@ def load_q(view):
   try:
     q_file = open(Q_FILENAME, 'r')
     view.q = pickle.loads(q_file.read())
+    
   # file not found -- start new q function
   except IOError: view.q = {}
   except EOFError: view.q = {}
@@ -158,9 +156,6 @@ def joint_classify(view):
   view.cur_nn_class = nnp.cur_plant_nutritious(view)  
   p = view.cur_dtree_class + view.cur_nn_class
   return p >= 1
-  # u = random.uniform(0, 1)
-  # p = view.cur_dtree_class * view.cur_nn_class
-  # return u <= p
 
 def update_state(view):
   update_grid(view)
@@ -193,18 +188,8 @@ def e_greedy(view):
   e = 1.0 / t
   u = random.uniform(0, 1)
 
-  if u < e:
-    return random.choice(DIRECTIONS)
-  else:
-    return get_argmax_qsa(view)
-
-def cur_plant_nutritious(view):
-  # image requires an argument to serve as label, but unused here
-  # since we just call classify, so give it a garbage value
-  image = nn.data_reader.Image(0)
-  image.pixels = view.GetImage()
-  # 1 for nutritious, 0 for poisonous
-  return (view.network.ClassifySoft(image) == 1)
+  if u < e: return random.choice(DIRECTIONS)
+  else: return get_argmax_qsa(view)
 
 def get_move(view):
   if not hasattr(view, "bootstrapped"):
@@ -231,6 +216,7 @@ def get_move(view):
     # view.eat = cur_plant_nutritious(view)
     view.eat = joint_classify(view)
 
+  view.eat = True
   # for now, save the q function each iteration
   save_q(view)
 
