@@ -77,7 +77,7 @@ def get_move(view):
       else: view.record[prev_class] = 1
       print view.record
     
-    # view.em.train(10)
+    # view.em.train(5000)
   
   view.eat = True
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
