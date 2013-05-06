@@ -26,7 +26,7 @@ def cur_plant_nutritious(view):
   image = nn.data_reader.Image(0)
   image.pixels = view.GetImage()
 
-  return view.network.Classify(image)
+  return view.network.ClassifySoft(image)
 
 def get_move(view):
   if view.GetRound() == 0:

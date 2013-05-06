@@ -1,0 +1,78 @@
+python run_game.py --starting_life=200 -d 0
+
+p = view.cur_dtree_class + view.cur_nn_class
+view.prev_eat = (p >= 1)
+
+{(True, -11): 1, (False, 19): 11, (True, 19): 5, (False, -11): 8}
+{(True, -11): 4, (False, 19): 10, (True, 19): 6, (False, -11): 3}
+{(False, 19): 2, (False, -11): 11}
+{(True, -11): 4, (False, 19): 10, (True, 19): 8, (False, -11): 13}
+{(True, -11): 1, (False, 19): 11, (True, 19): 16, (False, -11): 15}
+{(False, 19): 6, (True, 19): 3, (False, -11): 5}
+
+Eat Nutritious: 5 + 6 + 8 + 16 = 35 | .236486486
+Eat Poison: 1 + 4 + 4 + 1 = 10 | .067567568
+
+Avoid Nutritious: 11 + 10 + 10 + 11 + 6 = 48 | .324324324
+Avoid Poison: 8 + 3+ 11 + 13 + 15 + 5 = 55 | .371621622
+
+Total: 148
+
+python run_game.py --starting_life=200 -d 0
+
+u = random.uniform(0, 1)
+p = view.cur_dtree_class * view.cur_nn_class
+view.prev_eat = (u <= p)
+
+{(True, -11): 3, (False, 19): 1, (False, -11): 7}
+{(False, 19): 2, (True, 19): 1, (False, -11): 8}
+{(False, 19): 5, (True, 19): 2, (False, -11): 12}
+{(True, -11): 3, (False, 19): 7, (True, 19): 1, (False, -11): 7}
+{(True, -11): 2, (False, 19): 18, (True, 19): 1, (False, -11): 7}
+{(True, -11): 3, (False, 19): 3, (False, -11): 7}
+
+Eat Nutritious: 1 + 1 = 2 | .020833333
+Eat Poison: 3 + 3 + 2 + 2 = 10 | .104166667
+
+Avoid Nutritious: 1 + 2 + 5 + 7 + 18 + 3 = 36 | .375
+Avoid Poison: 7 + 8 + 12 + 7 + 7 + 7 = 48 | .5
+
+Total: 96
+
+python run_game.py --starting_life=200 -d 0
+
+view.prev_eat = (view.cur_dtree_class and view.cur_nn_class)
+
+{(1, -11): 2, (0, 19): 14, (1, 19): 2, (0, -11): 12}
+{(1, 19): 1, (0, -11): 5}
+{(1, -11): 2, (0, 19): 12, (1, 19): 6, (0, -11): 10}
+{(0, 19): 11, (0, -11): 8}
+{(0, 19): 8, (1, 19): 5, (0, -11): 8}
+{(0, 19): 3, (1, 19): 1, (0, -11): 11}
+
+Eat Nutritious: 2 + 6 + 5 + 1 = 14 | .116666667
+Eat Poison: 2 + 2 = 4 | .033333333
+
+Avoid Nutritious: 14 + 12 + 11 + 8 + 3 = 48 | .4
+Avoid Poison: 12 + 5 + 10 + 8 + 8 + 11 = 54 | .45
+
+Total: 120
+
+python run_game.py --starting_life=200 -d 0
+
+view.prev_eat = (view.cur_dtree_class or view.cur_nn_class)
+
+{(1, -11): 2, (0, 19): 2, (0, -11): 4}
+{(1, -11): 2, (0, 19): 2, (1, 19): 2, (0, -11): 8}
+{(1, -11): 3, (0, 19): 4, (1, 19): 2, (0, -11): 7}
+{(1, -11): 4, (0, 19): 2, (1, 19): 11, (0, -11): 9}
+{(1, -11): 7, (0, 19): 7, (1, 19): 8, (0, -11): 8}
+{(1, -11): 6, (0, 19): 2, (1, 19): 2, (0, -11): 7}
+
+Eat Nutritious: 2 + 2 + 11 + 8 + 2 = 25 | .229357798
+Eat Poison: 2 + 2 + 3 + 4 + 7 + 6 = 24 | .220183486
+
+Avoid Nutritious: 2 + 2 + 4 + 7 + 2 = 17 | .155963303
+Avoid Poison: 4 + 8 + 7 + 9 + 8 + 7 = 43 | .394495413
+
+Total: 109

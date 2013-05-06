@@ -29,7 +29,7 @@ def cur_plant_nutritious(view):
   plant = list(view.GetImage()) + [0]
   example = dtree.Example(plant)
   
-  nutritious = main.weighted_classify(view.dtree, example)
+  nutritious = main.weighted_classify_soft(view.dtree, example)
   return nutritious
 
 def get_move(view):
