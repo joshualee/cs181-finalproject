@@ -4,7 +4,9 @@ import time
 import os
 import sys
 import neural_network as nn
+
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parentdir)
 parentdir += '/neural_network'
 sys.path.insert(0,parentdir)
 import neural_net_impl
