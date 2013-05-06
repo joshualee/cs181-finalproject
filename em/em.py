@@ -86,7 +86,7 @@ class EM:
 
         '''
         num_data = len(self.data_points)
-        
+
         self.gammas = []
         for i in range(num_data):
           self.gammas.append([0.0] * self.clusters)
@@ -100,9 +100,6 @@ class EM:
         for cluster,gamma in enumerate(self.gammas):
             sum_gamma = sum(gamma)
             self.gammas[cluster] = map(lambda g: g/sum_gamma, gamma)
-
-        print "After expectation gammas are: "
-        print self.gammas
 
     def maximization(self):
         '''
@@ -142,20 +139,20 @@ class EM:
 
             self.param_covariance[cluster].matrix = new_covariance * (1./num_expected_cluster)
 
-        print "Data points"
-        for dp in self.data_points:
-            print dp.x, dp.y
-
-        print "After maximization new paramters are:"
+        #print "After maximization new paramters are:"
         for cluster in range(self.clusters):
             x_variance = self.param_covariance[cluster].matrix[0,0]
-            y_variance = self.param_covariance[cluster].matrix[0,1]
-            correlation = self.param_covariance[cluster].matrix[0,1] / x_variance / y_variance
-            print "Cluster {0}".format(cluster)
-            print "pi: {0}".format(self.param_pi[cluster])
-            print "mu: {0},{1}".format(self.param_mu[cluster].x, self.param_mu[cluster].y)
-            print "covariance:\n{0}".format(self.param_covariance[cluster].matrix)
-            print "correlation: {0}".format(correlation)
+            y_variance = self.param_covariance[cluster].matrix[1,1]
+
+            if x_variance == 0:
+                 self.param_covariance[cluster].matrix[0,0] = .01
+            if y_variance == 0:
+                 self.param_covariance[cluster].matrix[1,1] = .01
+
+            #print "Cluster {0}".format(cluster)
+            #print "pi: {0}".format(self.param_pi[cluster])
+            #print "mu: {0},{1}".format(self.param_mu[cluster].x, self.param_mu[cluster].y)
+            #print "covariance:\n{0}".format(self.param_covariance[cluster].matrix)
 
 
     def train(self, iterations = None):
@@ -232,13 +229,7 @@ class EM:
         x_variance = numpy.sqrt(covariance.matrix[0,0])
         y_variance = numpy.sqrt(covariance.matrix[1,1])
 
-        #if x_variance == 0:
-            #x_variance = .0001
-        #if y_variance == 0:
-            #y_variance = .0001
-
         correlation = covariance.matrix[0,1] / x_variance / y_variance
-        #print x_variance, y_variance, correlation
         if math.isnan(correlation):
             sys_Exi
 
