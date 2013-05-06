@@ -7,6 +7,7 @@ import sys
 import time
 import traceback
 from optparse import OptionParser
+import pickle
 
 class TimeoutException(Exception):
   def __init__(self):
@@ -83,6 +84,8 @@ def run(options):
           print 'Player 1 wins: %d v. %d' % (l1, l2)
       # Wait for input
       # sys.stdin.read(1)
+      # q_file = open('save/q_tournament.pickle', 'w')
+      # q_file.write(pickle.dumps(player1_view.q))
       if options.display:
         game_interface.curses_close()
       break
