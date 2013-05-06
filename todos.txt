@@ -1,4 +1,0 @@
-Josh's Ideas:
-- Figure out rewards based on location. Count total reward / total 
-  - possibly graph?
-- Write function to figure out distribution of rewards
