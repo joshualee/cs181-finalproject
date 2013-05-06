@@ -83,9 +83,7 @@ def run(options):
         else:
           print 'Player 1 wins: %d v. %d' % (l1, l2)
       # Wait for input
-      # sys.stdin.read(1)
-      # q_file = open('save/q_tournament.pickle', 'w')
-      # q_file.write(pickle.dumps(player1_view.q))
+      sys.stdin.read(1)
       if options.display:
         game_interface.curses_close()
       break
