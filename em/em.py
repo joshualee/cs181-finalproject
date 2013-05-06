@@ -231,6 +231,9 @@ class EM:
 
         correlation = covariance.matrix[0,1] / x_variance / y_variance
         if math.isnan(correlation):
+            print x_variance
+            print y_variance
+            print covariance.matrix[0,1]
             sys_Exi
 
         # http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Density_function
