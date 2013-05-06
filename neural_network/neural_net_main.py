@@ -85,7 +85,7 @@ def main():
   epochs, data = network.Train(images, validation, rate, epochs)
   data = data[1::]
   
-  nnp.save_neural_network(network, 'nn_15.pickle')
+  nnp.save_neural_network(network, 'nn_test.pickle')
   # network = nnp.load_neural_network('nn_30.pickle')
   test_images = DataReader.GetImages('../data/32kset-test-5000.json', -1)
   

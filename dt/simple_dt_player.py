@@ -30,9 +30,7 @@ def cur_plant_nutritious(view):
   example = dtree.Example(plant)
   
   nutritious = main.weighted_classify(view.dtree, example)
-  print nutritious
-  # 1 for nutritious, 0 for poisonous
-  return (nutritious == 1)
+  return nutritious
 
 def get_move(view):
   if view.GetRound() == 0:
@@ -41,7 +39,7 @@ def get_move(view):
   # If there is a plant in this location, then try and eat it.
   hasPlant = view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT
   
-  eat = hasPlant and cur_plant_nutritious(view)
+  eat = hasPlant and cur_plant_nutritious(view) > 0.5
     
   # Choose a random direction
   return (random.choice(DIRECTIONS), hasPlant)

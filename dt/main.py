@@ -11,7 +11,7 @@ from pylab import *
 import math
 import json
 import pickle
-PICKLE_FILENAME = '../save/dtree_boost25_32k.pickle'
+PICKLE_FILENAME = '../save/dtree_boost25_300.pickle'
 
 class Globals:
     noisyFlag = False
@@ -145,7 +145,16 @@ def weighted_classify(trees, example):
         vote = tree.predict(example)
         votes[vote] += tree.weight
     majority = max_key_in_dict(votes)
+    
+    print float(votes[1]) / (votes[0] + votes[1])
     return majority
+
+def weighted_classify_soft(trees, example):
+  votes = collections.defaultdict(float)
+  for tree in trees:
+      vote = tree.predict(example)
+      votes[vote] += tree.weight
+  return float(votes[1]) / (votes[0] + votes[1])
 
 # For HW1 problem 2a
 def do_p2a(dataset):
@@ -350,8 +359,8 @@ def main():
 
     # Read in the data file
     
-    # f = open("../data/100n_200p.json")
-    f = open("../data/12000n_20000p.json")
+    f = open("../data/100n_200p.json")
+    # f = open("../data/12000n_20000p.json")
     
     data = []
     

@@ -4,7 +4,7 @@ import re
 def main():
   regexp = re.compile("Player (\d+) wins: (-?\d+) v. (-?\d+)")
   
-  num_games = 30
+  num_games = 100
   p1_wins = 0
   p2_wins = 0
   p1_score = 0.0
@@ -13,14 +13,19 @@ def main():
   for i in range(num_games):
     output = sp.check_output([
       "python", "run_game.py",
-      "--starting_life", "100",
+      "--starting_life", "200",
       "-d", "0"
     ])
     
     match = regexp.search(output)
-    assert(match != None)
+    
+    if match == None:
+      print output
+      continue
     
     p_num, p1_s, p2_s = match.groups()
+    
+    print "{0}: Player {1} won {2} v. {3}".format(i, p_num, p1_s, p2_s)
     
     if int(p_num) == 1:
       p1_wins += 1

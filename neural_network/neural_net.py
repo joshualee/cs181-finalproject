@@ -181,7 +181,12 @@ class NetworkFramework(object):
     input = self.Convert(image)
     self.FeedForwardFn(self.network, input)
     return self.GetNetworkLabel()
-
+  
+  def ClassifySoft(self, image):
+    input = self.Convert(image)
+    self.FeedForwardFn(self.network, input)
+    return self.GetNetworkLabelSoft()
+    
   def Performance(self, images):
 
     # Loop over the set of images and count the number correct.

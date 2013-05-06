@@ -216,7 +216,10 @@ class EncodedNetworkFramework(NetworkFramework):
     new_target.values[label] = 1.0
     return new_target
 
-
+  def GetNetworkLabelSoft(self):
+    labels = map(lambda node: node.transformed_value, self.network.outputs)
+    return float(labels[1]) / (labels[0] + labels[1])
+  
   def GetNetworkLabel(self):
     """
     Arguments:

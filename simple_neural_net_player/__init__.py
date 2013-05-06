@@ -25,8 +25,8 @@ def cur_plant_nutritious(view):
   # since we just call classify, so give it a garbage value
   image = nn.data_reader.Image(0)
   image.pixels = view.GetImage()
-  # 1 for nutritious, 0 for poisonous
-  return (view.network.Classify(image) == 1)
+
+  return view.network.Classify(image)
 
 def get_move(view):
   if view.GetRound() == 0:
@@ -35,7 +35,7 @@ def get_move(view):
   # If there is a plant in this location, then try and eat it.
   hasPlant = view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT
   
-  eat = hasPlant and cur_plant_nutritious(view)
+  eat = hasPlant and cur_plant_nutritious(view) > 0.5
     
   # Choose a random direction
   return (random.choice(DIRECTIONS), hasPlant)

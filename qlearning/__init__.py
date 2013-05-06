@@ -20,7 +20,7 @@ import neural_net_impl
 import neural_net
 
 NN_FILENAME = 'save/nn_30.pickle'
-Q_FILENAME = "save/q_xy_with_eat.pickle"
+Q_FILENAME = "save/q_trained.pickle"
 
 DIRECTIONS = [
   gi.UP,
@@ -33,7 +33,7 @@ DIRECTIONS = [
 GI_NOT_VISITED = 4
 
 ALPHA = 1.0
-GAMMA = 0.95
+GAMMA = 0.75
 
 def plant_status_to_str(status):
   if status == gi.STATUS_NO_PLANT:
@@ -83,24 +83,23 @@ def get_grid(view, x, y):
   try: return view.grid[x, y]
   except KeyError: return GI_NOT_VISITED
 
-
-def set_state(view):
-  view.cur_state = (view.GetXPos(), view.GetYPos())
-  
 # def set_state(view):
-#   cur_x, cur_y = view.GetXPos(), view.GetYPos()
-#   cur = get_grid(view, cur_x, cur_y)
-#   up = get_grid(view, cur_x, cur_y+1)
-#   right = get_grid(view, cur_x+1, cur_y)
-#   down = get_grid(view, cur_x, cur_y-1)
-#   left = get_grid(view, cur_x-1, cur_y)
-#   x_dist = cur_x - view.start_x
-#   y_dist = cur_y - view.start_y
-#   up_left = get_grid(view, cur_x-1, cur_y+1)
-#   up_right = get_grid(view, cur_x+1, cur_y+1)
-#   down_left = get_grid(view, cur_x-1, cur_y-1)
-#   down_right = get_grid(view, cur_x+1, cur_y-1)
-#   view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, x_dist, y_dist)
+#   view.cur_state = (view.GetXPos(), view.GetYPos())
+  
+def set_state(view):
+  cur_x, cur_y = view.GetXPos(), view.GetYPos()
+  cur = get_grid(view, cur_x, cur_y)
+  up = get_grid(view, cur_x, cur_y+1)
+  right = get_grid(view, cur_x+1, cur_y)
+  down = get_grid(view, cur_x, cur_y-1)
+  left = get_grid(view, cur_x-1, cur_y)
+  # x_dist = cur_x - view.start_x
+  # y_dist = cur_y - view.start_y
+  up_left = get_grid(view, cur_x-1, cur_y+1)
+  up_right = get_grid(view, cur_x+1, cur_y+1)
+  down_left = get_grid(view, cur_x-1, cur_y-1)
+  down_right = get_grid(view, cur_x+1, cur_y-1)
+  view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, cur_x, cur_y)
 
 def update_grid(view):
   view.grid[(view.GetXPos(), view.GetYPos())] = view.GetPlantInfo()
@@ -156,8 +155,12 @@ def bootstrap(view):
 
 def joint_classify(view):
   view.cur_dtree_class = dt.cur_plant_nutritious(view)
-  view.cur_nn_class = nnp.cur_plant_nutritious(view)
-  return (view.cur_dtree_class and view.cur_nn_class)
+  view.cur_nn_class = nnp.cur_plant_nutritious(view)  
+  p = view.cur_dtree_class + view.cur_nn_class
+  return p >= 1
+  # u = random.uniform(0, 1)
+  # p = view.cur_dtree_class * view.cur_nn_class
+  # return u <= p
 
 def update_state(view):
   update_grid(view)
@@ -201,7 +204,7 @@ def cur_plant_nutritious(view):
   image = nn.data_reader.Image(0)
   image.pixels = view.GetImage()
   # 1 for nutritious, 0 for poisonous
-  return (view.network.Classify(image) == 1)
+  return (view.network.ClassifySoft(image) == 1)
 
 def get_move(view):
   if not hasattr(view, "bootstrapped"):

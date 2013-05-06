@@ -2,7 +2,7 @@ import game_interface as gi
 import random
 import time
 import em
-import simple_neural_net_player as nn
+import simple_neural_net_player as nnp
 import dt.simple_dt_player as dt
 
 DIRECTIONS = [
@@ -21,11 +21,22 @@ def set_prev_state(view):
   view.prev_plant_status = view.GetPlantInfo()
   view.prev_dtree_class = view.cur_dtree_class
   view.prev_nn_class = view.cur_nn_class
+  
+  # view.prev_eat = view.eat
 
 def joint_classify(view):
   view.cur_dtree_class = dt.cur_plant_nutritious(view)
-  view.cur_nn_class = nn.cur_plant_nutritious(view)
-  return view.cur_dtree_class and view.cur_nn_class
+  view.cur_nn_class = nnp.cur_plant_nutritious(view)  
+  view.prev_eat = (view.cur_dtree_class or view.cur_nn_class)
+  return view.prev_eat
+  # p = view.cur_dtree_class + view.cur_nn_class
+  # print "p: {0}".format(p)
+  # view.prev_eat = (p >= 1)
+  # return p >= 1
+  # u = random.uniform(0, 1)
+  # p = view.cur_dtree_class * view.cur_nn_class
+  # view.prev_eat = (u <= p)
+  # return u <= p
 
 def dir_towards_start(view):
   cur_x, cur_y, start_x, start_y = view.GetXPos(), view.GetYPos(), view.start_x, view.start_y
@@ -59,7 +70,7 @@ def get_move(view):
     view.start_x, view.start_y = view.GetXPos(), view.GetYPos()
         
     view.em = em.EM()
-    view.network = nn.load_neural_net('save/nn_15.pickle')
+    view.network = nnp.load_neural_net('save/nn_15.pickle')
     view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
   else:
     reward = view.GetLife() - view.prev_life
@@ -68,7 +79,7 @@ def get_move(view):
       
     # increment record counts
     if view.prev_plant_status == gi.STATUS_UNKNOWN_PLANT:
-      prev_class = (view.prev_dtree_class, view.prev_nn_class, reward)
+      prev_class = (view.prev_eat, reward)
       if prev_class in view.record: view.record[prev_class] += 1
       else: view.record[prev_class] = 1
       print view.record
