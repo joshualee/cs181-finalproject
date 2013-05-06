@@ -10,5 +10,5 @@ import em
 import dt
 
 def get_move(view):
-  # return qlearning.get_move(view)
-  return em.em_player.get_move(view)
+  return qlearning.get_move(view)
+  # return em.em_player.get_move(view)
