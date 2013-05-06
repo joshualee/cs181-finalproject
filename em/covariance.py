@@ -9,8 +9,8 @@ class Covariance:
 
     @staticmethod
     def get_random_covariance(max_variance):
-        var_x = random.randint(1, max_variance)
-        var_y = random.randint(1, max_variance)
+        var_x = random.uniform(1, max_variance)
+        var_y = random.uniform(1, max_variance)
         correlation = random.uniform(-1,1)
 
         symmetric_entry = correlation * var_x * var_y

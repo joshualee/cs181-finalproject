@@ -7,10 +7,12 @@ import numpy
 from numpy import matrix
 from numpy import linalg
 
+import math
+
 DIRECTIONS = [
-  gi.RIGHT, 
-  gi.LEFT, 
-  gi.UP, 
+  gi.RIGHT,
+  gi.LEFT,
+  gi.UP,
   gi.DOWN
 ]
 
@@ -55,7 +57,6 @@ class EM:
             param_mu[k] is the mean value of a coordinate in cluster k
             param_covariance[k] is the covariance matrix of a cluster k
 
-            
         '''
 
         self.param_pi = []
@@ -67,7 +68,7 @@ class EM:
         self.old_covariance = []
 
         for cluster in range(self.clusters):
-            self.param_pi.append(random.random())
+            self.param_pi = [1./3,1./3,1./3]
             self.param_mu.append(Coordinate.get_random_coordinate(self.max_x, self.max_y))
             self.param_covariance.append(Covariance.get_random_covariance(self.max_variance))
 
@@ -91,11 +92,18 @@ class EM:
             for cluster in range(self.clusters):
                 self.gammas[index][cluster] = \
                     self.mog_probability(data_point, cluster)
+                print "[{0}, {1}]: {2}".format(index, cluster, self.gammas[index][cluster])
+            print self.gammas[index]
+
+        print self.gammas
 
         # Normalize the gammas
         for cluster,gamma in enumerate(self.gammas):
             sum_gamma = sum(gamma)
             self.gammas[cluster] = map(lambda g: g/sum_gamma, gamma)
+
+        print "After expectation gammas are: "
+        print self.gammas
 
     def maximization(self):
         '''
@@ -135,6 +143,22 @@ class EM:
 
             self.param_covariance[cluster].matrix = new_covariance * (1./num_expected_cluster)
 
+        print "Data points"
+        for dp in self.data_points:
+            print dp.x, dp.y
+
+        print "After maximization new paramters are:"
+        for cluster in range(self.clusters):
+            x_variance = self.param_covariance[cluster].matrix[0,0]
+            y_variance = self.param_covariance[cluster].matrix[0,1]
+            correlation = self.param_covariance[cluster].matrix[0,1] / x_variance / y_variance
+            print "Cluster {0}".format(cluster)
+            print "pi: {0}".format(self.param_pi[cluster])
+            print "mu: {0},{1}".format(self.param_mu[cluster].x, self.param_mu[cluster].y)
+            print "covariance:\n{0}".format(self.param_covariance[cluster].matrix)
+            print "correlation: {0}".format(correlation)
+
+
     def train(self, iterations = None):
         '''
             Loops over expectation and maximization steps iteration times, or
@@ -144,7 +168,7 @@ class EM:
         converged = False
 
         # If we have no data we can't train
-        if len(self.data_points) == 0:
+        if len(self.data_points) < self.use_threshold:
             return
 
         if iterations:
@@ -208,7 +232,16 @@ class EM:
 
         x_variance = numpy.sqrt(covariance.matrix[0,0])
         y_variance = numpy.sqrt(covariance.matrix[1,1])
+
+        #if x_variance == 0:
+            #x_variance = .0001
+        #if y_variance == 0:
+            #y_variance = .0001
+
         correlation = covariance.matrix[0,1] / x_variance / y_variance
+        #print x_variance, y_variance, correlation
+        if math.isnan(correlation):
+            sys_Exi
 
         # http://en.wikipedia.org/wiki/Multivariate_normal_distribution#Density_function
         term1 = 1. / (2 * numpy.pi * x_variance * y_variance * numpy.sqrt(1-correlation**2))
