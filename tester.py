@@ -13,7 +13,7 @@ def main():
   for i in range(num_games):
     output = sp.check_output([
       "python", "run_game.py",
-      "--starting_life", "200",
+      "--starting_life", "500",
       "-d", "0"
     ])
     

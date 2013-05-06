@@ -107,8 +107,10 @@ def load_q(view):
     view.q = pickle.loads(q_file.read())
     
   # file not found -- start new q function
-  except IOError: view.q = {}
-  except EOFError: view.q = {}
+  except IOError: assert False
+  except EOFError: assert False
+  # except IOError: view.q = {}
+  # except EOFError: view.q = {}
 
 def save_q(view):
   q_file = open(Q_FILENAME, 'w')
@@ -207,8 +209,8 @@ def get_move(view):
     view.q[sa] = \
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
 
-  view.direction = e_greedy(view)
-  # view.direction = get_argmax_qsa(view)
+  # view.direction = e_greedy(view)
+  view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
 
   view.eat = False
@@ -216,9 +218,9 @@ def get_move(view):
     # view.eat = cur_plant_nutritious(view)
     view.eat = joint_classify(view)
 
-  view.eat = True
+  # view.eat = True
   # for now, save the q function each iteration
-  save_q(view)
+  # save_q(view)
 
   set_previous_state(view)
 
