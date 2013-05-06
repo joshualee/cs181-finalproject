@@ -176,8 +176,6 @@ def e_greedy(view):
   else: return get_argmax_qsa(view)
 
 def get_move(view):
-  test = open("test.tmp", 'w')
-  test.write("test")
   if not hasattr(view, "bootstrapped"):
     # Initialize
     bootstrap(view)
