@@ -6,8 +6,8 @@ import game_interface
 
 class Coordinate:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
 
     def scale_coordinate(self, scalar):
         x = self.x * scalar
