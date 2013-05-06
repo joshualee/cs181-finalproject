@@ -11,13 +11,16 @@ import simple_neural_net_player as nnp
 import dt.simple_dt_player as dt
 
 # to import neural network
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-parentdir += '/neural_network'
-sys.path.insert(0,parentdir)
+mydir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0,mydir)
+sys.path.insert(0,mydir+"/neural_network")
 import neural_net_impl
 import neural_net
 
-Q_FILENAME = "save/q_tournament.pickle"
+Q_FILENAME = "player/q_tournament.pickle"
+NN_FILENAME = "player/nn_15.pickle"
+DTREE_FILENAME = "player/dtree_boost25_32k.pickle"
+
 DIRECTIONS = [
   gi.UP,
   gi.DOWN,
@@ -83,7 +86,7 @@ def load_q(view):
     view.q = pickle.loads(q_file.read())
     
   # file not found -- start new q function
-  except IOError: assert False, "Could not load pickled Q function"
+  except IOError: assert False, "Could not load pickled Q function -- must change "
   except EOFError: assert False, "Could not load pickled Q function"
   # except IOError: view.q = {}
   # except EOFError: view.q = {}
@@ -124,8 +127,8 @@ def bootstrap(view):
   load_q(view)
   view.grid = {}
 
-  view.network = nnp.load_neural_net('save/nn_15.pickle')
-  view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
+  view.network = nnp.load_neural_net(NN_FILENAME)
+  view.dtree = dt.load_dtree(DTREE_FILENAME)
 
   update_state(view)
 
@@ -136,7 +139,6 @@ def joint_classify(view):
   nn1 = nnp.cur_plant_nutritious(view, plant_img)  
   dtree2 = dt.cur_plant_nutritious(view, plant_img2)
   nn2 = nnp.cur_plant_nutritious(view, plant_img2)
-  print dtree1, nn1, dtree2, nn2
   p = dtree1 + nn1 + dtree2 + nn2
   return p >= 2
 
@@ -174,6 +176,8 @@ def e_greedy(view):
   else: return get_argmax_qsa(view)
 
 def get_move(view):
+  test = open("test.tmp", 'w')
+  test.write("test")
   if not hasattr(view, "bootstrapped"):
     # Initialize
     bootstrap(view)
@@ -182,14 +186,14 @@ def get_move(view):
     moved_dir = determine_direction(view)
     reward = view.GetLife() - view.prev_life
     update_state(view)
-
+  
     # Update Q function
     sa = (view.prev_state, moved_dir)
     prev_q = view.q.get(sa, 0)
     max_qsa = get_max_qsa(view)
     view.q[sa] = \
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
-
+  
   # Choose direction to move in
   view.direction = e_greedy(view)
   # view.direction = get_argmax_qsa(view)
@@ -199,6 +203,6 @@ def get_move(view):
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
     view.eat = joint_classify(view)
-
+  
   set_previous_state(view)
   return (view.direction, view.eat)

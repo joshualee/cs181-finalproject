@@ -2,6 +2,7 @@ import os
 import sys
 mydir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, mydir)
+sys.path.insert(0, mydir+"qlearning")
 
 import common
 import qlearning
