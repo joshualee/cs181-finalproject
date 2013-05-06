@@ -89,7 +89,6 @@ def main():
   # network = nnp.load_neural_network('nn_30.pickle')
   test_images = DataReader.GetImages('../data/32kset-test-5000.json', -1)
   
-  
   test_performance = network.Performance(test_images)
   
   print "Performance on test data: {0}".format(test_performance)

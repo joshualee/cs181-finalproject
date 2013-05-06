@@ -8,6 +8,10 @@ import game_interface as gi
 import neural_network as nn
 
 
+import simple_neural_net_player as nnp
+import dt.simple_dt_player as dt
+
+
 # to import neural network
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 parentdir += '/neural_network'
@@ -16,7 +20,7 @@ import neural_net_impl
 import neural_net
 
 NN_FILENAME = 'save/nn_30.pickle'
-Q_FILENAME = "save/q_11.pickle"
+Q_FILENAME = "save/q_xy_with_eat.pickle"
 
 DIRECTIONS = [
   gi.UP,
@@ -79,20 +83,24 @@ def get_grid(view, x, y):
   try: return view.grid[x, y]
   except KeyError: return GI_NOT_VISITED
 
+
 def set_state(view):
-  cur_x, cur_y = view.GetXPos(), view.GetYPos()
-  cur = get_grid(view, cur_x, cur_y)
-  up = get_grid(view, cur_x, cur_y+1)
-  right = get_grid(view, cur_x+1, cur_y)
-  down = get_grid(view, cur_x, cur_y-1)
-  left = get_grid(view, cur_x-1, cur_y)
-  x_dist = cur_x - view.start_x
-  y_dist = cur_y - view.start_y
-  up_left = get_grid(view, cur_x-1, cur_y+1)
-  up_right = get_grid(view, cur_x+1, cur_y+1)
-  down_left = get_grid(view, cur_x-1, cur_y-1)
-  down_right = get_grid(view, cur_x+1, cur_y-1)
-  view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, x_dist, y_dist)
+  view.cur_state = (view.GetXPos(), view.GetYPos())
+  
+# def set_state(view):
+#   cur_x, cur_y = view.GetXPos(), view.GetYPos()
+#   cur = get_grid(view, cur_x, cur_y)
+#   up = get_grid(view, cur_x, cur_y+1)
+#   right = get_grid(view, cur_x+1, cur_y)
+#   down = get_grid(view, cur_x, cur_y-1)
+#   left = get_grid(view, cur_x-1, cur_y)
+#   x_dist = cur_x - view.start_x
+#   y_dist = cur_y - view.start_y
+#   up_left = get_grid(view, cur_x-1, cur_y+1)
+#   up_right = get_grid(view, cur_x+1, cur_y+1)
+#   down_left = get_grid(view, cur_x-1, cur_y-1)
+#   down_right = get_grid(view, cur_x+1, cur_y-1)
+#   view.cur_state = (cur, up, right, down, left, up_left, up_right, down_left, down_right, x_dist, y_dist)
 
 def update_grid(view):
   view.grid[(view.GetXPos(), view.GetYPos())] = view.GetPlantInfo()
@@ -101,7 +109,6 @@ def load_q(view):
   try:
     q_file = open(Q_FILENAME, 'r')
     view.q = pickle.loads(q_file.read())
-    print "successfully loaded!!!\n\n\n\n\n~~~~~~~~~~~~~~"
   # file not found -- start new q function
   except IOError: view.q = {}
   except EOFError: view.q = {}
@@ -142,9 +149,15 @@ def bootstrap(view):
   load_q(view)
   view.grid = {}
 
-  view.network = nn.neural_net_pickle.load_neural_network(NN_FILENAME)
+  view.network = nnp.load_neural_net('save/nn_15.pickle')
+  view.dtree = dt.load_dtree('save/dtree_boost25_32k.pickle')
 
   update_state(view)
+
+def joint_classify(view):
+  view.cur_dtree_class = dt.cur_plant_nutritious(view)
+  view.cur_nn_class = nnp.cur_plant_nutritious(view)
+  return (view.cur_dtree_class and view.cur_nn_class)
 
 def update_state(view):
   update_grid(view)
@@ -203,17 +216,17 @@ def get_move(view):
     prev_q = view.q.get(sa, 0)
     max_qsa = get_max_qsa(view)
 
-    view.q[(view.prev_state, moved_dir)] = \
+    view.q[sa] = \
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
 
   view.direction = e_greedy(view)
   # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
 
-
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
-    view.eat = cur_plant_nutritious(view)
+    # view.eat = cur_plant_nutritious(view)
+    view.eat = joint_classify(view)
 
   # for now, save the q function each iteration
   save_q(view)
