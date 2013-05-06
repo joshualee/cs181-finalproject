@@ -7,10 +7,8 @@ import pickle
 import game_interface as gi
 import neural_network as nn
 
-
 import simple_neural_net_player as nnp
 import dt.simple_dt_player as dt
-
 
 # to import neural network
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +18,6 @@ import neural_net_impl
 import neural_net
 
 Q_FILENAME = "save/q_tournament.pickle"
-
 DIRECTIONS = [
   gi.UP,
   gi.DOWN,
@@ -33,18 +30,6 @@ GI_NOT_VISITED = 4
 
 ALPHA = 1.0
 GAMMA = 0.75
-
-def plant_status_to_str(status):
-  if status == gi.STATUS_NO_PLANT:
-    return "no plant"
-  elif status == gi.STATUS_UNKNOWN_PLANT:
-    return "unknown"
-  elif status == gi.STATUS_POISONOUS_PLANT:
-    return "poisonous"
-  elif status == gi.STATUS_NUTRITIOUS_PLANT:
-    return "nutritious"
-  else:
-    return "type not recognized"
 
 def set_previous_state(view):
   view.prev_x = view.GetXPos()
@@ -72,18 +57,9 @@ def determine_direction(view):
   else:
     assert False, "determine_direction: player didn't move (fatal game error)"
 
-def dir_to_str(d):
-  if d == gi.UP: return "up"
-  if d == gi.DOWN: return "down"
-  if d == gi.LEFT: return "left"
-  if d == gi.RIGHT: return "right"
-
 def get_grid(view, x, y):
   try: return view.grid[x, y]
   except KeyError: return GI_NOT_VISITED
-
-# def set_state(view):
-#   view.cur_state = (view.GetXPos(), view.GetYPos())
   
 def set_state(view):
   cur_x, cur_y = view.GetXPos(), view.GetYPos()
@@ -107,8 +83,8 @@ def load_q(view):
     view.q = pickle.loads(q_file.read())
     
   # file not found -- start new q function
-  except IOError: assert False
-  except EOFError: assert False
+  except IOError: assert False, "Could not load pickled Q function"
+  except EOFError: assert False, "Could not load pickled Q function"
   # except IOError: view.q = {}
   # except EOFError: view.q = {}
 
@@ -154,10 +130,15 @@ def bootstrap(view):
   update_state(view)
 
 def joint_classify(view):
-  view.cur_dtree_class = dt.cur_plant_nutritious(view)
-  view.cur_nn_class = nnp.cur_plant_nutritious(view)  
-  p = view.cur_dtree_class + view.cur_nn_class
-  return p >= 1
+  plant_img = view.GetImage()
+  plant_img2 = view.GetImage()
+  dtree1 = dt.cur_plant_nutritious(view, plant_img)
+  nn1 = nnp.cur_plant_nutritious(view, plant_img)  
+  dtree2 = dt.cur_plant_nutritious(view, plant_img2)
+  nn2 = nnp.cur_plant_nutritious(view, plant_img2)
+  print dtree1, nn1, dtree2, nn2
+  p = dtree1 + nn1 + dtree2 + nn2
+  return p >= 2
 
 def update_state(view):
   update_grid(view)
@@ -165,7 +146,6 @@ def update_state(view):
 
 def get_argmax_qsa(view):
   neg_inf = float('-inf')
-
   max_dirs = []
   max_val = neg_inf
   for d in DIRECTIONS:
@@ -195,33 +175,30 @@ def e_greedy(view):
 
 def get_move(view):
   if not hasattr(view, "bootstrapped"):
+    # Initialize
     bootstrap(view)
   else:
+    # Figure out results of previous action
     moved_dir = determine_direction(view)
     reward = view.GetLife() - view.prev_life
     update_state(view)
 
+    # Update Q function
     sa = (view.prev_state, moved_dir)
-
     prev_q = view.q.get(sa, 0)
     max_qsa = get_max_qsa(view)
-
     view.q[sa] = \
       prev_q + ALPHA * (reward + GAMMA * max_qsa - prev_q)
 
-  # view.direction = e_greedy(view)
-  view.direction = get_argmax_qsa(view)
+  # Choose direction to move in
+  view.direction = e_greedy(view)
+  # view.direction = get_argmax_qsa(view)
   # view.direction = dir_within_z(view, 50)
-
+  
+  # Determine if we should eat or not
   view.eat = False
   if view.GetPlantInfo() == gi.STATUS_UNKNOWN_PLANT:
-    # view.eat = cur_plant_nutritious(view)
     view.eat = joint_classify(view)
 
-  # view.eat = True
-  # for now, save the q function each iteration
-  # save_q(view)
-
   set_previous_state(view)
-
   return (view.direction, view.eat)
