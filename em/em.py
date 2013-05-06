@@ -97,9 +97,14 @@ class EM:
                     self.mog_probability(data_point, cluster)
 
         # Normalize the gammas
+        print "Unnormalized gammas: {0}".format(self.gammas)
         for cluster,gamma in enumerate(self.gammas):
             sum_gamma = sum(gamma)
-            self.gammas[cluster] = map(lambda g: g/sum_gamma, gamma)
+            if sum_gamma == 0:
+                self.gammas[cluster] = [1./self.cluster] * self.clusters
+            else:
+                self.gammas[cluster] = map(lambda g: g/sum_gamma, gamma)
+        print "Normalized gammas: {0}".format(self.gammas)
 
     def maximization(self):
         '''
@@ -125,6 +130,8 @@ class EM:
                     (v.scale_coordinate(p[cluster]) for \
                     p,v in zip(self.gammas, self.data_points)))
 
+            #for i in (v.scale_coordinate(p[cluster]) for p,v in zip(self.gammas, self.data_points)):
+
             self.param_mu[cluster] = weighted_sum.scale_coordinate(1./num_expected_cluster)
 
             ''' To get the covariance we get the weighted sum of the matrix
@@ -138,21 +145,19 @@ class EM:
                 new_covariance += (mat * numpy.transpose(mat)) * p[cluster]
 
             self.param_covariance[cluster].matrix = new_covariance * (1./num_expected_cluster)
+            print new_covariance
 
-        #print "After maximization new paramters are:"
+        print self.gammas
+
+        print "After maximization new paramters are:"
         for cluster in range(self.clusters):
             x_variance = self.param_covariance[cluster].matrix[0,0]
             y_variance = self.param_covariance[cluster].matrix[1,1]
 
-            if x_variance == 0:
-                 self.param_covariance[cluster].matrix[0,0] = .01
-            if y_variance == 0:
-                 self.param_covariance[cluster].matrix[1,1] = .01
-
-            #print "Cluster {0}".format(cluster)
+            print "Cluster {0}".format(cluster)
             #print "pi: {0}".format(self.param_pi[cluster])
             #print "mu: {0},{1}".format(self.param_mu[cluster].x, self.param_mu[cluster].y)
-            #print "covariance:\n{0}".format(self.param_covariance[cluster].matrix)
+            print "covariance:\n{0}".format(self.param_covariance[cluster].matrix)
 
 
     def train(self, iterations = None):
@@ -229,6 +234,11 @@ class EM:
         x_variance = numpy.sqrt(covariance.matrix[0,0])
         y_variance = numpy.sqrt(covariance.matrix[1,1])
 
+        if x_variance == 0:
+             self.param_covariance[cluster].matrix[0,0] = x_variance = .01
+        if y_variance == 0:
+             self.param_covariance[cluster].matrix[1,1] = y_variance = .01
+
         correlation = covariance.matrix[0,1] / x_variance / y_variance
         if math.isnan(correlation):
             print x_variance
@@ -244,6 +254,8 @@ class EM:
         term5 = (2*correlation*(data_point.x - mean.x)*(data_point.y - mean.y))/(x_variance * y_variance)
         pdf = term1 * numpy.exp(term2*(term3 + term4 - term5))
 
+        print term1, term2, term3, term4, term5
+        print pi, pdf
         return pi * pdf
 
     def add_data_point(self, x, y):
