@@ -93,8 +93,8 @@ def get_move(view):
   # always eat, for data collection
   view.eat = True
   
-  # view.direction = view.em.get_direction(view)
-  view.direction = dir_within_z(view, 50)
+  view.direction = view.em.get_direction(view)
+  # view.direction = dir_within_z(view, 50)
   set_prev_state(view)
 
   return (view.direction, view.eat)

@@ -86,16 +86,15 @@ class EM:
 
         '''
         num_data = len(self.data_points)
-        self.gammas = [[0]*self.clusters]*num_data
+        
+        self.gammas = []
+        for i in range(num_data):
+          self.gammas.append([0.0] * self.clusters)
 
         for index, data_point in enumerate(self.data_points):
             for cluster in range(self.clusters):
                 self.gammas[index][cluster] = \
                     self.mog_probability(data_point, cluster)
-                print "[{0}, {1}]: {2}".format(index, cluster, self.gammas[index][cluster])
-            print self.gammas[index]
-
-        print self.gammas
 
         # Normalize the gammas
         for cluster,gamma in enumerate(self.gammas):
